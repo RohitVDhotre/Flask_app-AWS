@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Combined App</title>
+
+    <style>
+        body {
+            display: flex;
+            justify-content: space-around;
+            background-color: #f5e0e9;
+        }
+
+        .section {
+            width: 45%;
+            margin: 10px;
+            background-color: #fff; /* Set a background color for each section */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .section form {
+            margin-bottom: 20px;
+        }
+
+        .section input,
+        .section textarea,
+        .section button {
+            margin-bottom: 10px;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="section">
+        <h1>Regex Matcher</h1>
+
+        <form method="POST" action="/">
+            <label for="text">Text:</label>
+            <textarea id="text" name="text" rows="1" cols="50" placeholder="Enter text here"></textarea>
+
+            <br>
+
+            <label for="regex_pattern">Regex Pattern:</label>
+            <input type="text" id="regex_pattern" name="regex_pattern" placeholder="Enter regex pattern">
+
+            <br>
+
+            <button type="submit">Submit</button>
+            <button type="button" onclick="clearOutput()">Clear</button>
+        </form>
+
+        {% if error %}
+            <p style="color: red;">Error: {{ error }}</p>
+        {% endif %}
+
+        <h2>Common Regex Patterns:</h2>
+        <ul>
+            <li>Email: ^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$</li>
+            <li>URL: ^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$</li>
+            <li>Phone Number: ^\+?[1-9]\d{1,14}$</li>
+            <!-- Add more common patterns as needed -->
+        </ul>
+
+        <h2>Matches:</h2>
+        <ul id="matchesList">
+            {% for match in matches %}
+                <li>{{ match }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="section">
+        <h1>Email Validation</h1>
+
+        <form method="POST" action="/validate_email">
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" placeholder="Enter email">
+
+            <br>
+
+            <button type="submit">Validate Email</button>
+        </form>
+
+        <h2>Email Validation Result:</h2>
+        <div id="validationResult"></div>
+
+        <script>
+            document.querySelector('form[action="/validate_email"]').addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const emailInput = document.getElementById('email');
+                const validationResultDiv = document.getElementById('validationResult');
+
+                const response = await fetch('/validate_email', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams(new FormData(this)),
+                });
+
+                const result = await response.json();
+
+                validationResultDiv.innerHTML = result.is_valid
+                    ? `<p style="color: green;">${result.email} is a valid email.</p>`
+                    : `<p style="color: red;">${result.email} is not a valid email.</p>`;
+            });
+        </script>
+    </div>
+</body>
+</html>
